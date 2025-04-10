@@ -34,6 +34,7 @@ impl FromStr for CodeRate {
     fn from_str(s: &str) -> Result<Self, Box<dyn Error>> {
         Ok(match s {
             "4/5" => CodeRate::Cr45,
+            "4/5,4/8" => CodeRate::Cr45,
             "4/6" | "2/3" => CodeRate::Cr46,
             "4/7" => CodeRate::Cr47,
             "4/8" | "2/4" | "1/2" => CodeRate::Cr48,
