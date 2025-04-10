@@ -364,6 +364,14 @@ pub struct LoraDataRate {
     pub coding_rate: String,
 }
 
+impl LoraDataRate {
+    pub fn supports_coding_rate(&self, coding_rate: &str) -> bool {
+        self.coding_rate
+            .split(',')
+            .any(|cr| cr.trim() == coding_rate)
+    }
+}
+
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct FskDataRate {
     pub bitrate: u32,
@@ -537,7 +545,16 @@ impl RegionBaseConfig {
                 continue;
             }
 
-            if modulation == &dr.modulation {
+            if let DataRateModulation::Lora(lora) = modulation {
+                if let DataRateModulation::Lora(config) = &dr.modulation {
+                    if config.spreading_factor == lora.spreading_factor
+                        && config.bandwidth == lora.bandwidth
+                        && config.supports_coding_rate(&lora.coding_rate)
+                    {
+                        return Ok(*i);
+                    }
+                }
+            } else if modulation == &dr.modulation {
                 return Ok(*i);
             }
         }
@@ -963,5 +980,32 @@ pub fn get(
         CommonName::KR920 => Box::new(kr920::Configuration::new(repeater_compatible)),
         CommonName::RU864 => Box::new(ru864::Configuration::new(repeater_compatible)),
         CommonName::US915 => Box::new(us915::Configuration::new(repeater_compatible)),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_supports_coding_rate() {
+        let single_rate = LoraDataRate {
+            spreading_factor: 12,
+            bandwidth: 125000,
+            coding_rate: "4/5".into(),
+        };
+
+        let multiple_rates = LoraDataRate {
+            spreading_factor: 12,
+            bandwidth: 125000,
+            coding_rate: "4/5,4/8".into(),
+        };
+
+        assert!(single_rate.supports_coding_rate("4/5"));
+        assert!(!single_rate.supports_coding_rate("4/8"));
+
+        assert!(multiple_rates.supports_coding_rate("4/5"));
+        assert!(multiple_rates.supports_coding_rate("4/8"));
+        assert!(!multiple_rates.supports_coding_rate("3/5"));
     }
 }
