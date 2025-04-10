@@ -1,3 +1,9 @@
+# Creowave fork of ChirpStack
+
+This fork of ChirpStack supports non-standard LoRaWAN coding rate of 4/8 in EU868 region.
+
+All modifications to the upstream codebase are maintained in separate branches following the naming scheme `cw-vX.Y.Z`. All releases are tagged as `vX.Y.Z`. The releases are published in [Docker Hub](https://hub.docker.com/r/creowave/chirpstack) as `creowave/chirpstack`.
+
 # ChirpStack open-source LoRaWAN(R) Network Server
 
 ![CI](https://github.com/chirpstack/chirpstack/actions/workflows/main.yml/badge.svg?branch=master)
